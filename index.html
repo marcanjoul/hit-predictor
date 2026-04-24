@@ -3,207 +3,69 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hit Predictor</title>
+    <title>Hit Song Predictor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <header class="topbar" aria-label="Project navigation">
-        <a class="brand" href="#predictor" aria-label="Hit Predictor home">
-          <span class="brand-mark">HP</span>
-          <span>Hit Predictor</span>
-        </a>
-        <nav class="nav-links" aria-label="Dashboard sections">
-          <a href="#predictor">Predictor</a>
-          <a href="#insights">Insights</a>
-          <a href="#charts">Charts</a>
-        </nav>
-      </header>
+    <main class="app">
+      <section class="shell" aria-labelledby="page-title">
+        <header class="hero">
+          <div class="kicker">
+            <span></span>
+          </div>
+          <h1 id="page-title">Hit Song Predictor</h1>
+          <p class="hero-copy">
+            Adjust audio features to predict chart performance. Model trained on
+            Spotify audio feature data.
+          </p>
+        </header>
 
-      <section class="workspace" id="predictor" aria-labelledby="predictor-title">
-        <div class="hero-panel">
-          <div class="hero-copy">
-            <p class="eyebrow">Spotify audio feature model</p>
-            <h1 id="predictor-title">Tune the track profile and estimate hit potential.</h1>
-            <p>
-              A polished interface for exploring the logistic-regression idea in this
-              project: success is a mix, not a single magic audio trait.
+        <section class="preset-bar" aria-label="Preset track profiles">
+          <span>Presets</span>
+          <button type="button" class="preset-button" data-preset="pop">Pop Anthem</button>
+          <button type="button" class="preset-button" data-preset="sad">Sad Ballad</button>
+          <button type="button" class="preset-button" data-preset="club">Club Banger</button>
+          <button type="button" class="preset-button" data-preset="lofi">Lo-Fi Chill</button>
+        </section>
+
+        <section class="main-grid">
+          <form class="feature-grid" id="feature-form" aria-label="Audio feature inputs"></form>
+
+          <aside class="results-panel" aria-label="Prediction results">
+            <div class="score-widget">
+              <svg class="score-svg" width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
+                <circle cx="100" cy="100" r="80" class="score-track"></circle>
+                <circle cx="100" cy="100" r="80" class="score-progress" id="score-progress"></circle>
+              </svg>
+              <div class="score-center">
+                <strong id="score-value">0</strong>
+                <span>/ 100</span>
+              </div>
+            </div>
+
+            <div class="verdict-pill" id="verdict-pill">
+              <span id="verdict-label">Chart Climber</span>
+            </div>
+
+            <svg class="radar" id="feature-radar" width="200" height="200" viewBox="0 0 200 200" aria-label="Feature radar chart"></svg>
+
+            <section class="contributions" aria-labelledby="contribution-title">
+              <h2 id="contribution-title">Top Feature Contributions</h2>
+              <div class="contribution-list" id="contribution-list"></div>
+            </section>
+
+            <p class="model-note">
+              This model uses weighted audio features to estimate chart potential.
+              Weights derived from historical Spotify data analysis.
             </p>
-          </div>
-
-          <div class="scoreboard" aria-live="polite">
-            <div class="score-ring" style="--score: 68">
-              <span id="score-value">68%</span>
-            </div>
-            <div>
-              <p class="score-label">Hit potential</p>
-              <h2 id="score-title">Playlist Ready</h2>
-              <p id="score-copy">
-                Strong danceability and energy are carrying this profile.
-              </p>
-            </div>
-            <img class="score-preview" src="feature_importance.png" alt="Feature importance chart preview" />
-          </div>
-        </div>
-
-        <section class="console-grid" aria-label="Interactive prediction controls">
-          <form class="control-panel" id="predictor-form">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">Input console</p>
-                <h2>Audio Features</h2>
-              </div>
-              <button class="ghost-button" type="button" id="reset-button">Reset</button>
-            </div>
-
-            <div class="slider-grid">
-              <label class="slider-row">
-                <span>
-                  <strong>Danceability</strong>
-                  <small>Groove and movement</small>
-                </span>
-                <output for="danceability" id="danceability-output">0.72</output>
-                <input id="danceability" name="danceability" type="range" min="0" max="1" step="0.01" value="0.72" />
-              </label>
-
-              <label class="slider-row">
-                <span>
-                  <strong>Energy</strong>
-                  <small>Intensity and drive</small>
-                </span>
-                <output for="energy" id="energy-output">0.78</output>
-                <input id="energy" name="energy" type="range" min="0" max="1" step="0.01" value="0.78" />
-              </label>
-
-              <label class="slider-row">
-                <span>
-                  <strong>Valence</strong>
-                  <small>Positive emotional tone</small>
-                </span>
-                <output for="valence" id="valence-output">0.64</output>
-                <input id="valence" name="valence" type="range" min="0" max="1" step="0.01" value="0.64" />
-              </label>
-
-              <label class="slider-row">
-                <span>
-                  <strong>Acousticness</strong>
-                  <small>Organic versus produced</small>
-                </span>
-                <output for="acousticness" id="acousticness-output">0.22</output>
-                <input id="acousticness" name="acousticness" type="range" min="0" max="1" step="0.01" value="0.22" />
-              </label>
-
-              <label class="slider-row">
-                <span>
-                  <strong>Speechiness</strong>
-                  <small>Spoken-word presence</small>
-                </span>
-                <output for="speechiness" id="speechiness-output">0.08</output>
-                <input id="speechiness" name="speechiness" type="range" min="0" max="1" step="0.01" value="0.08" />
-              </label>
-
-              <label class="slider-row">
-                <span>
-                  <strong>Tempo</strong>
-                  <small>Beats per minute</small>
-                </span>
-                <output for="tempo" id="tempo-output">122</output>
-                <input id="tempo" name="tempo" type="range" min="60" max="200" step="1" value="122" />
-              </label>
-            </div>
-          </form>
-
-          <aside class="signal-panel" aria-label="Model signal breakdown">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">Live readout</p>
-                <h2>Signal Mix</h2>
-              </div>
-            </div>
-
-            <div class="meter-list">
-              <div class="meter">
-                <span>Party factor</span>
-                <strong id="party-value">56</strong>
-                <i style="--meter: 56%"></i>
-              </div>
-              <div class="meter">
-                <span>Mood score</span>
-                <strong id="mood-value">71</strong>
-                <i style="--meter: 71%"></i>
-              </div>
-              <div class="meter">
-                <span>Radio polish</span>
-                <strong id="polish-value">76</strong>
-                <i style="--meter: 76%"></i>
-              </div>
-            </div>
-
-            <div class="recommendation">
-              <p class="eyebrow">Suggestion</p>
-              <p id="recommendation-text">
-                Keep the current tempo range and test a brighter chorus.
-              </p>
-            </div>
           </aside>
         </section>
-      </section>
-
-      <section class="insights-section" id="insights" aria-labelledby="insights-title">
-        <div class="section-heading">
-          <p class="eyebrow">Model notes</p>
-          <h2 id="insights-title">What the data is saying</h2>
-        </div>
-        <div class="insight-grid">
-          <article class="insight-card">
-            <span>01</span>
-            <h3>Combinations matter</h3>
-            <p>No single audio feature strongly explains success. The useful signal appears when features interact.</p>
-          </article>
-          <article class="insight-card">
-            <span>02</span>
-            <h3>Energy travels well</h3>
-            <p>Energetic, danceable tracks are often closer to the hit profile, especially when the mood is bright.</p>
-          </article>
-          <article class="insight-card">
-            <span>03</span>
-            <h3>Context still wins</h3>
-            <p>Audio traits help, but popularity also depends on release timing, artist reach, and promotion.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="charts-section" id="charts" aria-labelledby="charts-title">
-        <div class="section-heading">
-          <p class="eyebrow">Notebook outputs</p>
-          <h2 id="charts-title">Analysis Gallery</h2>
-        </div>
-        <div class="chart-grid">
-          <figure class="chart-card">
-            <img src="feature_importance.png" alt="Feature importance chart" />
-            <figcaption>Feature importance</figcaption>
-          </figure>
-          <figure class="chart-card">
-            <img src="roc_curve.png" alt="ROC curve chart" />
-            <figcaption>ROC curve</figcaption>
-          </figure>
-          <figure class="chart-card">
-            <img src="precision_recall_curve.png" alt="Precision recall curve chart" />
-            <figcaption>Precision-recall curve</figcaption>
-          </figure>
-          <figure class="chart-card">
-            <img src="confusion_matrix.png" alt="Confusion matrix chart" />
-            <figcaption>Confusion matrix</figcaption>
-          </figure>
-          <figure class="chart-card wide">
-            <img src="correlation_heatmap.png" alt="Correlation heatmap chart" />
-            <figcaption>Correlation heatmap</figcaption>
-          </figure>
-          <figure class="chart-card wide">
-            <img src="feature_distributions.png" alt="Feature distributions chart" />
-            <figcaption>Feature distributions</figcaption>
-          </figure>
-        </div>
       </section>
     </main>
     <script src="app.js"></script>
