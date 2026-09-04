@@ -73,11 +73,11 @@ function predictHit(values) {
 }
 
 function getVerdict(score) {
-  if (score >= 0.78) return { label: "SMASH HIT", color: "#00ffa3" };
-  if (score >= 0.62) return { label: "CHART CLIMBER", color: "#6ee7ff" };
-  if (score >= 0.48) return { label: "SOLID TRACK", color: "#fbbf24" };
-  if (score >= 0.32) return { label: "DEEP CUT", color: "#f97316" };
-  return { label: "SHELF WARMER", color: "#ef4444" };
+  if (score >= 0.78) return { label: "SMASH HIT", key: "smash" };
+  if (score >= 0.62) return { label: "CHART CLIMBER", key: "climber" };
+  if (score >= 0.48) return { label: "SOLID TRACK", key: "solid" };
+  if (score >= 0.32) return { label: "DEEP CUT", key: "deep" };
+  return { label: "SHELF WARMER", key: "shelf" };
 }
 
 function formatDuration(ms) {
@@ -164,7 +164,7 @@ function animateScore(nextScore) {
 }
 
 function renderScore(score, verdict) {
-  document.documentElement.style.setProperty("--verdict", verdict.color);
+  document.documentElement.dataset.verdict = verdict.key;
   scoreProgress.style.strokeDasharray = circumference;
   scoreProgress.style.strokeDashoffset = circumference - score * circumference;
   verdictLabel.textContent = verdict.label;
