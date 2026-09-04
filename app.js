@@ -1,14 +1,14 @@
 const FEATURES = [
-  { key: "danceability", label: "Danceability", icon: "💃", min: 0, max: 1, step: 0.01, default: 0.65, description: "How suitable for dancing" },
-  { key: "energy", label: "Energy", icon: "⚡", min: 0, max: 1, step: 0.01, default: 0.72, description: "Intensity and activity" },
-  { key: "valence", label: "Valence", icon: "☀️", min: 0, max: 1, step: 0.01, default: 0.55, description: "Musical positivity" },
-  { key: "tempo", label: "Tempo", icon: "🥁", min: 60, max: 200, step: 1, default: 120, description: "Beats per minute" },
-  { key: "loudness", label: "Loudness", icon: "🔊", min: -20, max: 0, step: 0.1, default: -5.5, description: "Overall volume in dB" },
-  { key: "speechiness", label: "Speechiness", icon: "🎤", min: 0, max: 1, step: 0.01, default: 0.08, description: "Presence of spoken words" },
-  { key: "acousticness", label: "Acousticness", icon: "🎸", min: 0, max: 1, step: 0.01, default: 0.15, description: "Acoustic confidence" },
-  { key: "instrumentalness", label: "Instrumentalness", icon: "🎹", min: 0, max: 1, step: 0.01, default: 0.01, description: "No vocal content likelihood" },
-  { key: "liveness", label: "Liveness", icon: "🎪", min: 0, max: 1, step: 0.01, default: 0.12, description: "Audience presence detected" },
-  { key: "duration_ms", label: "Duration", icon: "⏱️", min: 60000, max: 480000, step: 1000, default: 210000, description: "Track length" },
+  { key: "danceability", label: "Danceability", min: 0, max: 1, step: 0.01, default: 0.65, description: "How suitable for dancing" },
+  { key: "energy", label: "Energy", min: 0, max: 1, step: 0.01, default: 0.72, description: "Intensity and activity" },
+  { key: "valence", label: "Valence", min: 0, max: 1, step: 0.01, default: 0.55, description: "Musical positivity" },
+  { key: "tempo", label: "Tempo", min: 60, max: 200, step: 1, default: 120, description: "Beats per minute" },
+  { key: "loudness", label: "Loudness", min: -20, max: 0, step: 0.1, default: -5.5, description: "Overall volume in dB" },
+  { key: "speechiness", label: "Speechiness", min: 0, max: 1, step: 0.01, default: 0.08, description: "Presence of spoken words" },
+  { key: "acousticness", label: "Acousticness", min: 0, max: 1, step: 0.01, default: 0.15, description: "Acoustic confidence" },
+  { key: "instrumentalness", label: "Instrumentalness", min: 0, max: 1, step: 0.01, default: 0.01, description: "No vocal content likelihood" },
+  { key: "liveness", label: "Liveness", min: 0, max: 1, step: 0.01, default: 0.12, description: "Audience presence detected" },
+  { key: "duration_ms", label: "Duration", min: 60000, max: 480000, step: 1000, default: 210000, description: "Track length" },
 ];
 
 const PRESETS = {
@@ -70,11 +70,11 @@ function predictHit(values) {
 }
 
 function getVerdict(score) {
-  if (score >= 0.78) return { label: "SMASH HIT", color: "#00ffa3", glow: "0 0 40px #00ffa344" };
-  if (score >= 0.62) return { label: "CHART CLIMBER", color: "#6ee7ff", glow: "0 0 30px #6ee7ff33" };
-  if (score >= 0.48) return { label: "SOLID TRACK", color: "#fbbf24", glow: "0 0 25px #fbbf2433" };
-  if (score >= 0.32) return { label: "DEEP CUT", color: "#f97316", glow: "0 0 20px #f9731622" };
-  return { label: "SHELF WARMER", color: "#ef4444", glow: "0 0 15px #ef444422" };
+  if (score >= 0.78) return { label: "SMASH HIT", color: "#00ffa3" };
+  if (score >= 0.62) return { label: "CHART CLIMBER", color: "#6ee7ff" };
+  if (score >= 0.48) return { label: "SOLID TRACK", color: "#fbbf24" };
+  if (score >= 0.32) return { label: "DEEP CUT", color: "#f97316" };
+  return { label: "SHELF WARMER", color: "#ef4444" };
 }
 
 function formatDuration(ms) {
@@ -96,7 +96,7 @@ function createSlider(feature) {
   card.innerHTML = `
     <div class="feature-top">
       <span class="feature-name">
-        <span class="feature-icon">${feature.icon}</span>
+        <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${feature.key}"></use></svg>
         <span class="feature-label">${feature.label}</span>
       </span>
       <output class="feature-value" id="${feature.key}-output">${formatValue(feature, feature.default)}</output>
@@ -156,7 +156,6 @@ function animateScore(nextScore) {
 
 function renderScore(score, verdict) {
   document.documentElement.style.setProperty("--verdict", verdict.color);
-  document.documentElement.style.setProperty("--glow", verdict.glow);
   scoreProgress.style.strokeDasharray = circumference;
   scoreProgress.style.strokeDashoffset = circumference - score * circumference;
   verdictLabel.textContent = verdict.label;

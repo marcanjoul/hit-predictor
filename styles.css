@@ -14,7 +14,6 @@
   --orange: #f97316;
   --red: #ef4444;
   --verdict: var(--cyan);
-  --glow: 0 0 30px rgba(110, 231, 255, 0.2);
 }
 
 * {
@@ -25,11 +24,8 @@ body {
   min-width: 320px;
   margin: 0;
   color: var(--text);
-  font-family: Syne, system-ui, sans-serif;
-  background:
-    radial-gradient(circle at 16% 10%, rgba(110, 231, 255, 0.08), transparent 26rem),
-    radial-gradient(circle at 92% 24%, rgba(0, 255, 163, 0.06), transparent 24rem),
-    var(--bg);
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  background: var(--bg);
 }
 
 button,
@@ -52,50 +48,31 @@ input {
   animation: fadeUp 0.6s ease-out both;
 }
 
-.kicker {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.kicker span {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--cyan);
-  box-shadow: 0 0 12px rgba(110, 231, 255, 0.4);
-}
-
-.kicker p,
 .preset-bar span,
 .contributions h2 {
   margin: 0;
   color: var(--muted);
-  font-family: "Space Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.68rem;
-  letter-spacing: 4px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 h1 {
   max-width: 760px;
+  font-family: Syne, system-ui, sans-serif;
   margin: 0;
   font-size: 2.35rem;
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: 0;
-  background: linear-gradient(135deg, var(--text), var(--cyan));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text);
 }
 
 .hero-copy {
   max-width: 420px;
   margin: 6px 0 0;
   color: var(--muted);
-  font-family: "Space Mono", monospace;
   font-size: 0.75rem;
   line-height: 1.6;
 }
@@ -123,10 +100,10 @@ h1 {
   color: rgba(255, 255, 255, 0.5);
   background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
-  font-family: "Space Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.68rem;
   letter-spacing: 0;
-  transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.2s;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
 }
 
 .preset-button:hover,
@@ -134,10 +111,6 @@ h1 {
   color: var(--cyan);
   border-color: var(--cyan);
   background: rgba(110, 231, 255, 0.07);
-}
-
-.preset-button:hover {
-  transform: translateY(-1px);
 }
 
 .main-grid {
@@ -159,14 +132,13 @@ h1 {
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--panel);
-  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+  transition: border-color 0.2s, background 0.2s;
 }
 
 .feature-card:hover,
 .feature-card:focus-within {
   border-color: var(--line-strong);
   background: var(--panel-hover);
-  transform: translateY(-1px);
 }
 
 .feature-top {
@@ -185,7 +157,15 @@ h1 {
 }
 
 .feature-icon {
-  font-size: 1rem;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .feature-label {
@@ -199,7 +179,7 @@ h1 {
 .feature-value {
   min-width: 65px;
   color: var(--cyan);
-  font-family: "Space Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.8rem;
   font-weight: 500;
   text-align: right;
@@ -218,7 +198,7 @@ h1 {
   inset: 0 auto 0 0;
   width: var(--pct);
   border-radius: inherit;
-  background: linear-gradient(90deg, rgba(110, 231, 255, 0.27), var(--cyan));
+  background: var(--cyan);
   transition: width 0.15s ease-out;
 }
 
@@ -244,7 +224,6 @@ input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
   background: var(--cyan);
-  box-shadow: 0 0 10px rgba(110, 231, 255, 0.33);
   cursor: pointer;
 }
 
@@ -254,14 +233,12 @@ input[type="range"]::-moz-range-thumb {
   border: 2px solid var(--bg);
   border-radius: 50%;
   background: var(--cyan);
-  box-shadow: 0 0 10px rgba(110, 231, 255, 0.33);
   cursor: pointer;
 }
 
 .feature-description {
   margin-top: 6px;
   color: var(--quiet);
-  font-family: "Space Mono", monospace;
   font-size: 0.63rem;
   letter-spacing: 0;
 }
@@ -340,19 +317,18 @@ input[type="range"]::-moz-range-thumb {
 
 .score-center strong {
   color: var(--verdict);
-  font-family: "Space Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 2.45rem;
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0;
-  text-shadow: var(--glow);
 }
 
 .score-center span {
   color: rgba(255, 255, 255, 0.4);
-  font-family: "Space Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.68rem;
-  letter-spacing: 3px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -361,16 +337,15 @@ input[type="range"]::-moz-range-thumb {
   border: 1px solid color-mix(in srgb, var(--verdict) 30%, transparent);
   border-radius: 6px;
   background: color-mix(in srgb, var(--verdict) 7%, transparent);
-  box-shadow: var(--glow);
-  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+  transition: border-color 0.3s, background 0.3s;
 }
 
 .verdict-pill span {
   color: var(--verdict);
-  font-family: "Space Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 2.5px;
+  letter-spacing: 0.06em;
 }
 
 .radar {
@@ -402,7 +377,7 @@ input[type="range"]::-moz-range-thumb {
 
 .radar-label {
   fill: rgba(255, 255, 255, 0.35);
-  font-family: "Space Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 8px;
 }
 
@@ -412,7 +387,6 @@ input[type="range"]::-moz-range-thumb {
 
 .contributions h2 {
   margin-bottom: 8px;
-  letter-spacing: 2px;
 }
 
 .contribution-list {
@@ -429,7 +403,7 @@ input[type="range"]::-moz-range-thumb {
 
 .contribution-label,
 .contribution-score {
-  font-family: "Space Mono", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.63rem;
 }
 
@@ -456,11 +430,11 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .contribution-fill.positive {
-  background: linear-gradient(90deg, rgba(0, 255, 163, 0.33), var(--green));
+  background: var(--green);
 }
 
 .contribution-fill.negative {
-  background: linear-gradient(90deg, rgba(239, 68, 68, 0.33), var(--red));
+  background: var(--red);
 }
 
 .contribution-score {
@@ -483,7 +457,6 @@ input[type="range"]::-moz-range-thumb {
   border-radius: 8px;
   color: var(--quiet);
   background: rgba(255, 255, 255, 0.03);
-  font-family: "Space Mono", monospace;
   font-size: 0.63rem;
   line-height: 1.35;
   letter-spacing: 0;
