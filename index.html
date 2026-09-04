@@ -37,6 +37,14 @@
           </p>
         </header>
 
+        <noscript>
+          <p class="notice">
+            This page builds its controls with JavaScript, which is currently
+            turned off, so the sliders and the score are not available. Enable
+            JavaScript for this page to use the predictor.
+          </p>
+        </noscript>
+
         <section class="preset-bar" aria-label="Preset track profiles">
           <span>Presets</span>
           <button type="button" class="preset-button" data-preset="pop">Pop Anthem</button>
@@ -64,7 +72,7 @@
               <span id="verdict-label">Chart Climber</span>
             </div>
 
-            <svg class="radar" id="feature-radar" width="200" height="200" viewBox="0 0 200 200" aria-label="Feature radar chart"></svg>
+            <svg class="radar" id="feature-radar" role="img" width="200" height="200" viewBox="0 0 200 200" aria-label="Feature radar chart"></svg>
 
             <section class="contributions" aria-labelledby="contribution-title">
               <h2 id="contribution-title">Top Feature Contributions</h2>

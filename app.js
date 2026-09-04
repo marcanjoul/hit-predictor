@@ -220,8 +220,8 @@ function renderRadar() {
     return {
       x: cx + Math.cos(angle) * radius * norm,
       y: cy + Math.sin(angle) * radius * norm,
-      labelX: cx + Math.cos(angle) * (radius + 18),
-      labelY: cy + Math.sin(angle) * (radius + 18),
+      labelX: cx + Math.cos(angle) * (radius + 26),
+      labelY: cy + Math.sin(angle) * (radius + 26),
       label: labels[index],
     };
   });
