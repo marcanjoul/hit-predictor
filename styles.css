@@ -33,6 +33,23 @@ input {
   font: inherit;
 }
 
+:where(button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .app {
   min-height: 100vh;
   padding: 24px 20px;
@@ -408,7 +425,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .contribution-label {
-  width: 42px;
+  min-width: 42px;
   color: rgba(255, 255, 255, 0.5);
   text-align: right;
 }
@@ -438,7 +455,8 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .contribution-score {
-  width: 38px;
+  min-width: 38px;
+  text-align: right;
 }
 
 .contribution-score.positive {
@@ -515,5 +533,15 @@ input[type="range"]::-moz-range-thumb {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

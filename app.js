@@ -38,11 +38,14 @@ const verdictLabel = document.querySelector("#verdict-label");
 const contributionList = document.querySelector("#contribution-list");
 const radar = document.querySelector("#feature-radar");
 const presetButtons = document.querySelectorAll(".preset-button");
+const scoreAnnounce = document.querySelector("#score-announce");
 const circumference = 2 * Math.PI * 80;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 let features = Object.fromEntries(FEATURES.map((feature) => [feature.key, feature.default]));
 let displayedScore = 0;
 let scoreFrame = null;
+let announceTimer = null;
 
 function normalize(value, min, max) {
   return (value - min) / (max - min);
@@ -140,6 +143,12 @@ function animateScore(nextScore) {
 
   if (scoreFrame) cancelAnimationFrame(scoreFrame);
 
+  if (reducedMotion.matches) {
+    displayedScore = target;
+    scoreValue.textContent = target;
+    return;
+  }
+
   function step(timestamp) {
     const progress = clamp((timestamp - startTime) / duration, 0, 1);
     const eased = 1 - Math.pow(1 - progress, 3);
@@ -160,6 +169,12 @@ function renderScore(score, verdict) {
   scoreProgress.style.strokeDashoffset = circumference - score * circumference;
   verdictLabel.textContent = verdict.label;
   animateScore(score);
+
+  clearTimeout(announceTimer);
+  announceTimer = setTimeout(() => {
+    const rounded = Math.round(score * 100);
+    scoreAnnounce.textContent = `Score ${rounded} out of 100. ${verdict.label.toLowerCase()}.`;
+  }, 500);
 }
 
 function renderInputs() {
