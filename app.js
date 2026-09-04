@@ -139,7 +139,7 @@ function animateScore(nextScore) {
   const target = Math.round(nextScore * 100);
   const startValue = displayedScore;
   const startTime = performance.now();
-  const duration = 650;
+  const duration = 400;
 
   if (scoreFrame) cancelAnimationFrame(scoreFrame);
 
