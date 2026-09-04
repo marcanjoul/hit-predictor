@@ -35,17 +35,22 @@ const form = document.querySelector("#feature-form");
 const scoreProgress = document.querySelector("#score-progress");
 const scoreValue = document.querySelector("#score-value");
 const verdictLabel = document.querySelector("#verdict-label");
+const verdictPill = document.querySelector("#verdict-pill");
 const contributionList = document.querySelector("#contribution-list");
 const radar = document.querySelector("#feature-radar");
 const presetButtons = document.querySelectorAll(".preset-button");
 const scoreAnnounce = document.querySelector("#score-announce");
 const circumference = 2 * Math.PI * 80;
+const SETTLE_MS = 260;
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 let features = Object.fromEntries(FEATURES.map((feature) => [feature.key, feature.default]));
 let displayedScore = 0;
 let scoreFrame = null;
 let announceTimer = null;
+let verdictShown = null;
+let verdictTimer = null;
+let firstPaint = true;
 
 function normalize(value, min, max) {
   return (value - min) / (max - min);
@@ -139,11 +144,11 @@ function animateScore(nextScore) {
   const target = Math.round(nextScore * 100);
   const startValue = displayedScore;
   const startTime = performance.now();
-  const duration = 400;
+  const duration = SETTLE_MS;
 
   if (scoreFrame) cancelAnimationFrame(scoreFrame);
 
-  if (reducedMotion.matches) {
+  if (reducedMotion.matches || firstPaint) {
     displayedScore = target;
     scoreValue.textContent = target;
     return;
@@ -163,11 +168,37 @@ function animateScore(nextScore) {
   scoreFrame = requestAnimationFrame(step);
 }
 
+function setVerdict(verdict) {
+  if (verdictShown === verdict.label) return;
+
+  if (verdictShown === null || reducedMotion.matches) {
+    verdictShown = verdict.label;
+    verdictLabel.textContent = verdict.label;
+    return;
+  }
+
+  verdictShown = verdict.label;
+  verdictPill.classList.add("is-swapping");
+  clearTimeout(verdictTimer);
+  verdictTimer = setTimeout(() => {
+    verdictLabel.textContent = verdict.label;
+    verdictPill.classList.remove("is-swapping");
+  }, 120);
+}
+
 function renderScore(score, verdict) {
   document.documentElement.dataset.verdict = verdict.key;
+
+  if (firstPaint) scoreProgress.style.transition = "none";
   scoreProgress.style.strokeDasharray = circumference;
   scoreProgress.style.strokeDashoffset = circumference - score * circumference;
-  verdictLabel.textContent = verdict.label;
+  if (firstPaint) {
+    // read back to force a style recalc while the transition is still off,
+    // otherwise both changes land in one recalc and the ring animates anyway
+    getComputedStyle(scoreProgress).strokeDashoffset;
+    scoreProgress.style.transition = "";
+  }
+  setVerdict(verdict);
   animateScore(score);
 
   clearTimeout(announceTimer);
@@ -191,82 +222,148 @@ function renderInputs() {
   });
 }
 
-function renderRadar() {
-  const keys = ["danceability", "energy", "valence", "speechiness", "acousticness", "liveness"];
-  const labels = ["Dance", "Energy", "Valence", "Speech", "Acoustic", "Live"];
-  const cx = 100;
-  const cy = 100;
-  const radius = 70;
+const RADAR_KEYS = ["danceability", "energy", "valence", "speechiness", "acousticness", "liveness"];
+const RADAR_LABELS = ["Dance", "Energy", "Valence", "Speech", "Acoustic", "Live"];
+const RADAR_CX = 100;
+const RADAR_CY = 100;
+const RADAR_R = 70;
+const radarAngle = (index) => (Math.PI * 2 * index) / RADAR_KEYS.length - Math.PI / 2;
 
-  const ringMarkup = [0.5, 1].map((scale) => {
-    const points = keys.map((_, index) => {
-      const angle = (Math.PI * 2 * index) / keys.length - Math.PI / 2;
-      return `${cx + Math.cos(angle) * radius * scale},${cy + Math.sin(angle) * radius * scale}`;
+let radarNodes = null;
+let radarCurrent = null;
+let radarFrame = null;
+
+function radarTargets() {
+  return RADAR_KEYS.map((key, index) => {
+    const feature = FEATURES.find((item) => item.key === key);
+    const norm = normalize(features[key], feature.min, feature.max);
+    const angle = radarAngle(index);
+    return {
+      x: RADAR_CX + Math.cos(angle) * RADAR_R * norm,
+      y: RADAR_CY + Math.sin(angle) * RADAR_R * norm,
+    };
+  });
+}
+
+// chrome is static, so it is built once. only the polygon and dots move.
+function buildRadar() {
+  const rings = [0.5, 1].map((scale) => {
+    const points = RADAR_KEYS.map((_, index) => {
+      const angle = radarAngle(index);
+      return `${RADAR_CX + Math.cos(angle) * RADAR_R * scale},${RADAR_CY + Math.sin(angle) * RADAR_R * scale}`;
     }).join(" ");
-
     return `<polygon class="radar-grid" points="${points}"></polygon>`;
   }).join("");
 
-  const axisMarkup = keys.map((_, index) => {
-    const angle = (Math.PI * 2 * index) / keys.length - Math.PI / 2;
-    return `<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${cx + Math.cos(angle) * radius}" y2="${cy + Math.sin(angle) * radius}"></line>`;
+  const axes = RADAR_KEYS.map((_, index) => {
+    const angle = radarAngle(index);
+    return `<line class="radar-axis" x1="${RADAR_CX}" y1="${RADAR_CY}" x2="${RADAR_CX + Math.cos(angle) * RADAR_R}" y2="${RADAR_CY + Math.sin(angle) * RADAR_R}"></line>`;
   }).join("");
 
-  const points = keys.map((key, index) => {
-    const feature = FEATURES.find((item) => item.key === key);
-    const norm = normalize(features[key], feature.min, feature.max);
-    const angle = (Math.PI * 2 * index) / keys.length - Math.PI / 2;
+  const labels = RADAR_KEYS.map((_, index) => {
+    const angle = radarAngle(index);
+    const x = RADAR_CX + Math.cos(angle) * (RADAR_R + 26);
+    const y = RADAR_CY + Math.sin(angle) * (RADAR_R + 26);
+    return `<text class="radar-label" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle">${RADAR_LABELS[index]}</text>`;
+  }).join("");
 
-    return {
-      x: cx + Math.cos(angle) * radius * norm,
-      y: cy + Math.sin(angle) * radius * norm,
-      labelX: cx + Math.cos(angle) * (radius + 26),
-      labelY: cy + Math.sin(angle) * (radius + 26),
-      label: labels[index],
-    };
+  const dots = RADAR_KEYS.map(() => '<circle class="radar-dot" r="3"></circle>').join("");
+
+  radar.innerHTML = `${rings}${axes}<polygon class="radar-area"></polygon>${dots}${labels}`;
+  radarNodes = {
+    area: radar.querySelector(".radar-area"),
+    dots: [...radar.querySelectorAll(".radar-dot")],
+  };
+}
+
+function paintRadar(points) {
+  radarNodes.area.setAttribute("points", points.map((point) => `${point.x},${point.y}`).join(" "));
+  points.forEach((point, index) => {
+    radarNodes.dots[index].setAttribute("cx", point.x);
+    radarNodes.dots[index].setAttribute("cy", point.y);
   });
+}
 
-  const polygon = points.map((point) => `${point.x},${point.y}`).join(" ");
-  const pointMarkup = points.map((point) => `
-    <g>
-      <circle class="radar-dot" cx="${point.x}" cy="${point.y}" r="3"></circle>
-      <text class="radar-label" x="${point.labelX}" y="${point.labelY}" text-anchor="middle" dominant-baseline="middle">${point.label}</text>
-    </g>
-  `).join("");
+// `points` is an SVG attribute, not a CSS property, so the shape is
+// interpolated here on the same curve and duration as the ring.
+function renderRadar() {
+  if (!radarNodes) buildRadar();
+  const target = radarTargets();
 
-  radar.innerHTML = `${ringMarkup}${axisMarkup}<polygon class="radar-area" points="${polygon}"></polygon>${pointMarkup}`;
+  if (!radarCurrent || reducedMotion.matches) {
+    radarCurrent = target;
+    paintRadar(target);
+    return;
+  }
+
+  const from = radarCurrent;
+  const startTime = performance.now();
+  if (radarFrame) cancelAnimationFrame(radarFrame);
+
+  function step(timestamp) {
+    const progress = clamp((timestamp - startTime) / SETTLE_MS, 0, 1);
+    const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+    radarCurrent = from.map((point, index) => ({
+      x: point.x + (target[index].x - point.x) * eased,
+      y: point.y + (target[index].y - point.y) * eased,
+    }));
+    paintRadar(radarCurrent);
+    if (progress < 1) radarFrame = requestAnimationFrame(step);
+  }
+
+  radarFrame = requestAnimationFrame(step);
+}
+
+const CONTRIBUTIONS = [
+  { key: "danceability", label: "Dance", weight: 0.18 },
+  { key: "energy", label: "Energy", weight: 0.12 },
+  { key: "loudness", label: "Loud", weight: 0.14 },
+  { key: "valence", label: "Mood", weight: 0.08 },
+  { key: "instrumentalness", label: "Instr", weight: -0.15 },
+];
+
+let contributionRows = null;
+
+function buildContributions() {
+  contributionList.innerHTML = CONTRIBUTIONS.map(() => `
+      <div class="contribution-row">
+        <span class="contribution-label"></span>
+        <span class="contribution-track">
+          <span class="contribution-fill"></span>
+        </span>
+        <span class="contribution-score"></span>
+      </div>
+    `).join("");
+
+  contributionRows = [...contributionList.querySelectorAll(".contribution-row")].map((row) => ({
+    label: row.querySelector(".contribution-label"),
+    fill: row.querySelector(".contribution-fill"),
+    score: row.querySelector(".contribution-score"),
+  }));
 }
 
 function renderContributions() {
-  const contributions = [
-    { key: "danceability", label: "Dance", weight: 0.18 },
-    { key: "energy", label: "Energy", weight: 0.12 },
-    { key: "loudness", label: "Loud", weight: 0.14 },
-    { key: "valence", label: "Mood", weight: 0.08 },
-    { key: "instrumentalness", label: "Instr", weight: -0.15 },
-  ].map((contribution) => {
+  if (!contributionRows) buildContributions();
+
+  const contributions = CONTRIBUTIONS.map((contribution) => {
     const feature = FEATURES.find((item) => item.key === contribution.key);
     const norm = normalize(features[contribution.key], feature.min, feature.max);
     return { ...contribution, impact: norm * contribution.weight };
-  }).sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact));
+  });
 
   const maxImpact = Math.max(...contributions.map((item) => Math.abs(item.impact)), 0.01);
 
-  contributionList.innerHTML = contributions.map((contribution) => {
+  contributions.forEach((contribution, index) => {
+    const row = contributionRows[index];
     const isPositive = contribution.impact >= 0;
-    const impactWidth = Math.abs(contribution.impact) / maxImpact * 100;
-    const score = `${isPositive ? "+" : ""}${(contribution.impact * 100).toFixed(1)}`;
-
-    return `
-      <div class="contribution-row">
-        <span class="contribution-label">${contribution.label}</span>
-        <span class="contribution-track">
-          <span class="contribution-fill ${isPositive ? "positive" : "negative"}" style="--impact: ${impactWidth}%"></span>
-        </span>
-        <span class="contribution-score ${isPositive ? "positive" : "negative"}">${score}</span>
-      </div>
-    `;
-  }).join("");
+    row.label.textContent = contribution.label;
+    // unitless: the fill is full width and scaled, so the browser can
+    // composite it instead of laying it out every frame
+    row.fill.style.setProperty("--impact", (Math.abs(contribution.impact) / maxImpact).toFixed(4));
+    row.fill.className = `contribution-fill ${isPositive ? "positive" : "negative"}`;
+    row.score.className = `contribution-score ${isPositive ? "positive" : "negative"}`;
+    row.score.textContent = `${isPositive ? "+" : ""}${(contribution.impact * 100).toFixed(1)}`;
+  });
 }
 
 function render() {
@@ -277,6 +374,8 @@ function render() {
   renderScore(score, verdict);
   renderRadar();
   renderContributions();
+
+  firstPaint = false;
 }
 
 presetButtons.forEach((button) => {

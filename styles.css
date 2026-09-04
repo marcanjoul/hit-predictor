@@ -39,9 +39,12 @@
   --text-base: 1rem;
 
   /* motion: one interaction duration, one settle curve */
+  --t-press: 0.16s;
   --t-fast: 0.2s;
   --t-mid: 0.3s;
+  --t-settle: 0.26s;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* verdict ramp: one hue arc, cold mauve to hot apricot. lightness and chroma
@@ -155,18 +158,27 @@ h1 {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   letter-spacing: 0;
-  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+  transition: color var(--t-fast), border-color var(--t-fast),
+    background var(--t-fast), transform var(--t-press) var(--ease-out);
 }
 
 .preset-button:active {
   background: var(--accent-tint);
+  transform: scale(0.97);
 }
 
-.preset-button:hover,
 .preset-button.is-active {
   color: var(--accent);
   border-color: var(--accent);
   background: var(--accent-wash);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .preset-button:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-wash);
+  }
 }
 
 .main-grid {
@@ -190,10 +202,16 @@ h1 {
   transition: border-color var(--t-fast), background var(--t-fast);
 }
 
-.feature-card:hover,
 .feature-card:focus-within {
   border-color: var(--line-strong);
   background: var(--surface-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .feature-card:hover {
+    border-color: var(--line-strong);
+    background: var(--surface-hover);
+  }
 }
 
 .feature-top {
@@ -370,7 +388,7 @@ input[type="range"]::-moz-range-thumb {
 .score-progress {
   stroke: var(--verdict);
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.4s var(--ease), stroke var(--t-mid);
+  transition: stroke-dashoffset var(--t-settle) var(--ease), stroke var(--t-mid);
 }
 
 .score-center {
@@ -407,11 +425,17 @@ input[type="range"]::-moz-range-thumb {
   transition: border-color var(--t-mid), background var(--t-mid);
 }
 
+.verdict-pill.is-swapping span {
+  filter: blur(4px);
+  opacity: 0.4;
+}
+
 .verdict-pill span {
   color: var(--verdict);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   white-space: nowrap;
+  transition: filter var(--t-fast) var(--ease-out), opacity var(--t-fast) var(--ease-out);
   font-weight: 700;
   letter-spacing: 0.06em;
 }
@@ -490,10 +514,11 @@ input[type="range"]::-moz-range-thumb {
 
 .contribution-fill {
   display: block;
-  width: var(--impact);
+  width: 100%;
   height: 100%;
-  border-radius: inherit;
-  transition: width 0.28s var(--ease);
+  transform: scaleX(var(--impact));
+  transform-origin: left;
+  transition: transform var(--t-settle) var(--ease);
 }
 
 .contribution-fill.positive {
