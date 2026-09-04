@@ -198,7 +198,7 @@ function renderRadar() {
   const cy = 100;
   const radius = 70;
 
-  const ringMarkup = [0.25, 0.5, 0.75, 1].map((scale) => {
+  const ringMarkup = [0.5, 1].map((scale) => {
     const points = keys.map((_, index) => {
       const angle = (Math.PI * 2 * index) / keys.length - Math.PI / 2;
       return `${cx + Math.cos(angle) * radius * scale},${cy + Math.sin(angle) * radius * scale}`;

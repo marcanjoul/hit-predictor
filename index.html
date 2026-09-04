@@ -33,8 +33,7 @@
         <header class="hero">
           <h1 id="page-title">Hit Song Predictor</h1>
           <p class="hero-copy">
-            Adjust audio features to predict chart performance. Model trained on
-            Spotify audio feature data.
+            Move the sliders to see how each audio feature shifts a track's score.
           </p>
         </header>
 
@@ -73,8 +72,10 @@
             </section>
 
             <p class="model-note">
-              This model uses weighted audio features to estimate chart potential.
-              Weights derived from historical Spotify data analysis.
+              Scores come from a weighted heuristic over audio features, not the
+              notebook's trained logistic regression. Audio alone is a weak signal
+              here: no single feature correlates above 0.10 with hit status, and
+              artist, label, and release timing are not modelled at all.
             </p>
           </aside>
         </section>
