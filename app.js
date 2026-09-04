@@ -151,7 +151,7 @@ function animateScore(nextScore) {
 
   function step(timestamp) {
     const progress = clamp((timestamp - startTime) / duration, 0, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
+    const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
     displayedScore = Math.round(startValue + (target - startValue) * eased);
     scoreValue.textContent = displayedScore;
 
